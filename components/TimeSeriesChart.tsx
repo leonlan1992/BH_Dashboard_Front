@@ -31,8 +31,31 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
     )
   }
 
+  // 计算Y轴范围（带padding，避免折线贴边）
+  const values = data.map(d => d.value)
+  const dataMin = Math.min(...values)
+  const dataMax = Math.max(...values)
+  const range = dataMax - dataMin
+  const padding = range * 0.1 || dataMin * 0.05  // 如果range为0，用5%的dataMin
+
+  const yAxisDomain = [
+    dataMin - padding,
+    dataMax + padding
+  ]
+
   // 筛选出预警点
   const alertPoints = data.filter(d => d.status === 'alert')
+
+  // Y轴刻度格式化（避免过长小数）
+  const formatYAxis = (value: number) => {
+    if (Math.abs(value) >= 100) {
+      return value.toFixed(0)  // 大数值，显示整数
+    } else if (Math.abs(value) >= 1) {
+      return value.toFixed(2)  // 中等数值，2位小数
+    } else {
+      return value.toFixed(3)  // 小数值，3位小数
+    }
+  }
 
   // 自定义Tooltip
   const CustomTooltip = ({ active, payload }: any) => {
@@ -71,6 +94,8 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
           <YAxis
             stroke="#9CA3AF"
             tick={{ fill: '#9CA3AF', fontSize: 12 }}
+            domain={yAxisDomain}
+            tickFormatter={formatYAxis}
           />
 
           <Tooltip content={<CustomTooltip />} />
