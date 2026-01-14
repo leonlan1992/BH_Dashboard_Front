@@ -23,6 +23,7 @@ interface HeatmapSectionProps {
   compact?: boolean
   onIndicatorMouseEnter: (e: React.MouseEvent, content: {
     indicatorName: string
+    tier: string
     ruleDescription: string
     investmentImplication: string
   }) => void
