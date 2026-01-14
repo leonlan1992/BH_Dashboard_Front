@@ -17,6 +17,9 @@ export interface Indicator {
   rule_description: string      // 规则文字描述
   investment_implication?: string
   why_it_matter?: string
+  url?: string
+  source_url?: string
+  link?: string
   is_active: boolean
   created_at?: string
   updated_at?: string

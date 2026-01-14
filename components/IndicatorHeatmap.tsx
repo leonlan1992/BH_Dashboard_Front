@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { FACTORS } from '@/lib/types'
 import HeatmapSection from './HeatmapSection'
 import HeatmapTooltip from './HeatmapTooltip'
+import IndicatorInfoTooltip from './IndicatorInfoTooltip'
 import type { HeatmapData } from '@/lib/types'
 
 interface IndicatorHeatmapProps {
@@ -48,6 +49,26 @@ export default function IndicatorHeatmap({
     }
   })
 
+  const [indicatorTooltip, setIndicatorTooltip] = useState<{
+    visible: boolean
+    x: number
+    y: number
+    content: {
+      indicatorName: string
+      ruleDescription: string
+      investmentImplication: string
+    }
+  }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    content: {
+      indicatorName: '',
+      ruleDescription: '',
+      investmentImplication: ''
+    }
+  })
+
   const handleCellClick = (indicatorId: string, date: string) => {
     // 设置选中的格子
     if (selectedCell?.indicatorId === indicatorId && selectedCell?.date === date) {
@@ -58,6 +79,30 @@ export default function IndicatorHeatmap({
       setSelectedCell({ indicatorId, date })
       onCellClick(indicatorId)  // 展开该指标的图表
     }
+  }
+
+  const handleIndicatorMouseEnter = (
+    e: React.MouseEvent,
+    content: {
+      indicatorName: string
+      ruleDescription: string
+      investmentImplication: string
+    }
+  ) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setIndicatorTooltip({
+      visible: true,
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10,
+      content
+    })
+  }
+
+  const handleIndicatorMouseLeave = () => {
+    setIndicatorTooltip({
+      ...indicatorTooltip,
+      visible: false
+    })
   }
 
   const handleCellMouseEnter = (
@@ -98,6 +143,8 @@ export default function IndicatorHeatmap({
           statusMap={data.statusMap}
           selectedCell={selectedCell}
           onCellClick={handleCellClick}
+          onIndicatorMouseEnter={handleIndicatorMouseEnter}
+          onIndicatorMouseLeave={handleIndicatorMouseLeave}
           onCellMouseEnter={handleCellMouseEnter}
           onCellMouseLeave={handleCellMouseLeave}
         />
@@ -109,6 +156,13 @@ export default function IndicatorHeatmap({
         x={tooltip.x}
         y={tooltip.y}
         content={tooltip.content}
+      />
+
+      <IndicatorInfoTooltip
+        visible={indicatorTooltip.visible}
+        x={indicatorTooltip.x}
+        y={indicatorTooltip.y}
+        content={indicatorTooltip.content}
       />
     </div>
   )

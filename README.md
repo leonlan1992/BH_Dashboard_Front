@@ -9,8 +9,9 @@ BH Dashboard 是一个金融风险监控仪表盘，用于实时监控和展示�
 ### 核心功能
 
 - **指标分组展示**: 按因子类型（D-利率、C-信用、V-波动率）分组显示14个经济指标
-- **交互式卡片**: 点击指标卡片展开详细信息和时序图表
-- **时序可视化**: 使用 Recharts 绘制绿色折线图和红色预警点
+- **热力图视图**: 以日期为横轴、指标为纵轴展示近30天状态
+- **交互式展开**: 点击热力图格子展开指标详情与时序图表
+- **时序可视化**: 使用 Recharts 绘制绿色折线图和淡红色预警区间
 - **实时状态**: 显示每个指标的最新状态（正常/预警）
 - **响应式设计**: 支持桌面、平板和移动设备
 - **深色主题**: 现代化的深色 UI 设计
@@ -84,6 +85,8 @@ BH_Dashboard_Front/
 │   ├── api/
 │   │   ├── indicators/
 │   │   │   └── route.ts          # GET /api/indicators - 获取指标列表
+│   │   ├── heatmap/
+│   │   │   └── route.ts          # GET /api/heatmap - 获取热力图数据
 │   │   └── data/
 │   │       └── [indicator_id]/
 │   │           └── route.ts       # GET /api/data/:id - 获取时序数据
@@ -91,8 +94,10 @@ BH_Dashboard_Front/
 │   ├── page.tsx                   # 主页面
 │   └── globals.css                # 全局样式
 ├── components/
-│   ├── IndicatorCard.tsx          # 指标卡片组件
-│   ├── IndicatorGroup.tsx         # 指标分组组件
+│   ├── IndicatorHeatmap.tsx       # 热力图主组件
+│   ├── HeatmapSection.tsx         # 因子分组热力图
+│   ├── HeatmapCell.tsx            # 热力图格子
+│   ├── HeatmapTooltip.tsx         # 热力图提示
 │   └── TimeSeriesChart.tsx        # 时序图表组件
 ├── lib/
 │   ├── supabase.ts                # Supabase 客户端
@@ -173,37 +178,34 @@ BH_Dashboard_Front/
 
 ## 核心组件
 
-### IndicatorCard
+### IndicatorHeatmap
 
-单个指标卡片，显示指标名称、状态徽章和基本信息。
+热力图主组件，整合 D/C/V 三个分组，支持格子点击与悬浮提示。
 
 **Props**:
-- `indicator`: 指标元数据
-- `latestStatus`: 最新状态 ('normal' | 'alert' | null)
-- `isSelected`: 是否被选中
-- `onClick`: 点击处理函数
+- `data`: 热力图数据
+- `onCellClick`: 格子点击处理函数
 
-### IndicatorGroup
+### HeatmapSection
 
-按因子分组的指标列表容器。
+按因子分组的热力图区域。
 
 **Props**:
 - `factor`: 因子信息 (D/C/V)
 - `indicators`: 指标数组
-- `selectedIndicatorId`: 当前选中的指标 ID
-- `onIndicatorClick`: 点击处理函数
-- `latestStatuses`: 所有指标的最新状态映射
+- `dates`: 日期数组
+- `statusMap`: 状态映射
 
 ### TimeSeriesChart
 
-时序图表组件，使用 Recharts 绘制折线图和散点图。
+时序图表组件，使用 Recharts 绘制折线图与预警区间。
 
 **Props**:
 - `data`: 时序数据点数组
 
 **特性**:
 - 绿色折线显示所有数据点
-- 红色圆点标记预警点
+- 淡红色垂直区间标记预警连续区间（单日显示为窄条带）
 - 自定义 Tooltip 显示详细信息（日期、数值、预警原因）
 - 响应式容器适配不同屏幕尺寸
 
@@ -240,12 +242,11 @@ BH_Dashboard_Front/
 
 主页面使用 React Hooks 进行状态管理:
 
-- `indicatorsByFactor`: 按因子分组的指标数据
+- `heatmapData`: 热力图数据
 - `selectedIndicatorId`: 当前选中的指标 ID
 - `indicatorData`: 选中指标的时序数据
-- `latestStatuses`: 所有指标的最新状态
 - `isLoading`: 初始加载状态
-- `isLoadingData`: 详细数据加载状态
+- `isLoadingChart`: 详细数据加载状态
 - `error`: 错误信息
 
 ## 样式设计
@@ -314,8 +315,8 @@ npm start
 // 修改折线颜色
 <Line stroke="#your-color" />
 
-// 修改散点颜色
-<Scatter fill="#your-color" />
+// 修改预警区间颜色
+<ReferenceArea fill="#your-color" />
 ```
 
 ### 调整日期范围
@@ -323,7 +324,7 @@ npm start
 编辑 `app/page.tsx` 中的 `fetchIndicatorData` 函数:
 
 ```tsx
-const { startDate, endDate } = getDateRange(90) // 修改天数
+const { startDate, endDate } = getDateRange(730) // 修改天数
 ```
 
 ## 故障排查

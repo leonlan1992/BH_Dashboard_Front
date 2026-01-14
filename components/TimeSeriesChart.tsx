@@ -7,7 +7,7 @@
 import {
   ComposedChart,
   Line,
-  Scatter,
+  ReferenceArea,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -31,8 +31,12 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
     )
   }
 
+  const sortedData = [...data].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  )
+
   // 计算Y轴范围（带padding，避免折线贴边）
-  const values = data.map(d => d.value)
+  const values = sortedData.map(d => d.value)
   const dataMin = Math.min(...values)
   const dataMax = Math.max(...values)
   const range = dataMax - dataMin
@@ -43,8 +47,39 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
     dataMax + padding
   ]
 
-  // 筛选出预警点
-  const alertPoints = data.filter(d => d.status === 'alert')
+  // 计算预警区间（连续的alert日期合并）
+  const oneDayMs = 24 * 60 * 60 * 1000
+  const alertRanges: Array<{ start: string; end: string }> = []
+  let currentRange: { start: string; end: string } | null = null
+
+  sortedData.forEach((point) => {
+    if (point.status === 'alert') {
+      if (!currentRange) {
+        currentRange = { start: point.date, end: point.date }
+        return
+      }
+
+      const prevTime = new Date(`${currentRange.end}T00:00:00`).getTime()
+      const currentTime = new Date(`${point.date}T00:00:00`).getTime()
+
+      if (currentTime - prevTime === oneDayMs) {
+        currentRange.end = point.date
+      } else {
+        alertRanges.push(currentRange)
+        currentRange = { start: point.date, end: point.date }
+      }
+    } else if (currentRange) {
+      alertRanges.push(currentRange)
+      currentRange = null
+    }
+  })
+
+  if (currentRange) {
+    alertRanges.push(currentRange)
+  }
+
+  const dates = sortedData.map((point) => point.date)
+  const dateIndex = new Map(dates.map((date, index) => [date, index]))
 
   // Y轴刻度格式化（避免过长小数）
   const formatYAxis = (value: number) => {
@@ -81,7 +116,7 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
   return (
     <div className="bg-gray-800 rounded-lg p-6">
       <ResponsiveContainer width="100%" height={400}>
-        <ComposedChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+        <ComposedChart data={sortedData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
 
           <XAxis
@@ -105,6 +140,27 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
             iconType="line"
           />
 
+          {/* 预警区间（淡红色垂直区间） */}
+          {alertRanges.map((range) => {
+            const startIndex = dateIndex.get(range.start) ?? 0
+            const endIndex = dateIndex.get(range.end) ?? startIndex
+            const renderEnd =
+              startIndex === endIndex && endIndex < dates.length - 1
+                ? dates[endIndex + 1]
+                : range.end
+
+            return (
+              <ReferenceArea
+                key={`${range.start}-${range.end}`}
+                x1={range.start}
+                x2={renderEnd}
+                fill="#EF4444"
+                fillOpacity={0.12}
+                strokeOpacity={0}
+              />
+            )
+          })}
+
           {/* 绿色折线图（所有数据点） */}
           <Line
             type="monotone"
@@ -114,17 +170,6 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
             dot={false}
             name="指标数值"
           />
-
-          {/* 红色散点（预警点） */}
-          {alertPoints.length > 0 && (
-            <Scatter
-              data={alertPoints}
-              dataKey="value"
-              fill="#EF4444"
-              shape="circle"
-              name="预警点"
-            />
-          )}
         </ComposedChart>
       </ResponsiveContainer>
     </div>

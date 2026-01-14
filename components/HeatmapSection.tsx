@@ -20,6 +20,12 @@ interface HeatmapSectionProps {
   statusMap: Record<string, Record<string, HeatmapCellData | null>>
   selectedCell: { indicatorId: string; date: string } | null
   onCellClick: (indicatorId: string, date: string) => void
+  onIndicatorMouseEnter: (e: React.MouseEvent, content: {
+    indicatorName: string
+    ruleDescription: string
+    investmentImplication: string
+  }) => void
+  onIndicatorMouseLeave: () => void
   onCellMouseEnter: (e: React.MouseEvent, content: any) => void
   onCellMouseLeave: () => void
 }
@@ -31,6 +37,8 @@ export default function HeatmapSection({
   statusMap,
   selectedCell,
   onCellClick,
+  onIndicatorMouseEnter,
+  onIndicatorMouseLeave,
   onCellMouseEnter,
   onCellMouseLeave
 }: HeatmapSectionProps) {
@@ -70,9 +78,39 @@ export default function HeatmapSection({
             {indicators.map((indicator) => (
               <tr key={indicator.id} className="border-t border-gray-700">
                 <td className="text-white text-sm py-2 pr-4 sticky left-0 bg-gray-800 z-10">
-                  <div className="truncate max-w-[200px]" title={indicator.indicator_cn}>
-                    {indicator.indicator_cn}
-                  </div>
+                  {(() => {
+                    const indicatorUrl = indicator.url || indicator.source_url || indicator.link
+                    const investmentImplication = [
+                      indicator.investment_implication,
+                      indicator.why_it_matter
+                    ].filter(Boolean).join(' ')
+
+                    const content = {
+                      indicatorName: indicator.indicator_cn,
+                      ruleDescription: indicator.rule_description || '暂无',
+                      investmentImplication: investmentImplication || '暂无'
+                    }
+
+                    return (
+                      <div
+                        className="truncate max-w-[200px]"
+                        title={indicator.indicator_cn}
+                        onMouseEnter={(e) => onIndicatorMouseEnter(e, content)}
+                        onMouseLeave={onIndicatorMouseLeave}
+                      >
+                        {indicatorUrl ? (
+                          <a
+                            href={indicatorUrl}
+                            className="text-white hover:text-blue-400 transition"
+                          >
+                            {indicator.indicator_cn}
+                          </a>
+                        ) : (
+                          indicator.indicator_cn
+                        )}
+                      </div>
+                    )
+                  })()}
                   <div className="text-gray-500 text-xs truncate max-w-[200px]">
                     {indicator.indicator_en}
                   </div>

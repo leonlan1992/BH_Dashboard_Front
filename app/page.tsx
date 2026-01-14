@@ -51,7 +51,7 @@ export default function Home() {
     try {
       setIsLoadingChart(true)
 
-      const { startDate, endDate } = getDateRange(90) // 获取90天数据
+      const { startDate, endDate } = getDateRange(730) // 获取2年数据
       const response = await fetch(
         `/api/data/${indicatorId}?start_date=${startDate}&end_date=${endDate}`
       )
@@ -191,7 +191,7 @@ export default function Home() {
 
             {/* 时序图 */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-4">时序图表（90天）</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">时序图表（2年）</h3>
               {isLoadingChart ? (
                 <div className="bg-gray-800 rounded-lg p-8 text-center">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-500 border-t-blue-500"></div>
