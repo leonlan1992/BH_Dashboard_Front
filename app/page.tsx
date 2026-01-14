@@ -24,14 +24,19 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingChart, setIsLoadingChart] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [heatmapEndDate, setHeatmapEndDate] = useState(() =>
+    new Date().toISOString().split('T')[0]
+  )
+  const [isOverviewMode, setIsOverviewMode] = useState(false)
+  const heatmapDays = isOverviewMode ? 365 : 30
 
   // 获取热力图数据
-  const fetchHeatmapData = async () => {
+  const fetchHeatmapData = async (endDate: string, days: number) => {
     try {
       setIsLoading(true)
       setError(null)
 
-      const response = await fetch('/api/heatmap')
+      const response = await fetch(`/api/heatmap?end_date=${endDate}&days=${days}`)
       if (!response.ok) {
         throw new Error('Failed to fetch heatmap data')
       }
@@ -85,34 +90,63 @@ export default function Home() {
 
   // 刷新数据
   const handleRefresh = () => {
-    fetchHeatmapData()
+    fetchHeatmapData(heatmapEndDate, heatmapDays)
     if (selectedIndicatorId) {
       fetchIndicatorData(selectedIndicatorId)
     }
   }
 
+  const handleToggleOverview = () => {
+    setIsOverviewMode((prev) => {
+      const next = !prev
+      fetchHeatmapData(heatmapEndDate, next ? 365 : 30)
+      return next
+    })
+  }
+
   // 初始加载
   useEffect(() => {
-    fetchHeatmapData()
+    fetchHeatmapData(heatmapEndDate, heatmapDays)
   }, [])
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-[1600px] mx-auto">
         {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-8 flex flex-wrap justify-between items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold">BH Dashboard</h1>
             <p className="text-gray-400 mt-1">风险监控仪表盘 - 热力图视图</p>
           </div>
 
-          <button
-            onClick={handleRefresh}
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-4 py-2 rounded-lg transition"
-          >
-            {isLoading ? '加载中...' : '🔄 刷新'}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleToggleOverview}
+              className={`px-4 py-2 rounded-lg transition ${
+                isOverviewMode
+                  ? 'bg-emerald-600 hover:bg-emerald-700'
+                  : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+            >
+              {isOverviewMode ? '总览模式：365天' : '总览模式：关闭'}
+            </button>
+            <div className="flex items-center gap-2 text-sm text-gray-300">
+              <span>截止日期</span>
+              <input
+                type="date"
+                value={heatmapEndDate}
+                onChange={(event) => setHeatmapEndDate(event.target.value)}
+                className="bg-gray-800 border border-gray-600 rounded-md px-2 py-1 text-gray-200"
+              />
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-4 py-2 rounded-lg transition"
+            >
+              {isLoading ? '加载中...' : '🔄 刷新'}
+            </button>
+          </div>
         </div>
 
         {/* 错误提示 */}
@@ -135,6 +169,7 @@ export default function Home() {
           <IndicatorHeatmap
             data={heatmapData}
             onCellClick={handleCellClick}
+            compact={isOverviewMode}
           />
         )}
 

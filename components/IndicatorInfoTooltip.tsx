@@ -10,6 +10,7 @@ interface IndicatorInfoTooltipProps {
   y: number
   content: {
     indicatorName: string
+    tier: string
     ruleDescription: string
     investmentImplication: string
   }
@@ -33,6 +34,7 @@ export default function IndicatorInfoTooltip({
       }}
     >
       <p className="text-white font-medium text-sm">{content.indicatorName}</p>
+      <p className="text-gray-400 text-xs mt-1">Tier: {content.tier}</p>
       <p className="text-gray-300 text-xs mt-2">
         预警规则: {content.ruleDescription}
       </p>

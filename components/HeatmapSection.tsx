@@ -20,6 +20,7 @@ interface HeatmapSectionProps {
   statusMap: Record<string, Record<string, HeatmapCellData | null>>
   selectedCell: { indicatorId: string; date: string } | null
   onCellClick: (indicatorId: string, date: string) => void
+  compact?: boolean
   onIndicatorMouseEnter: (e: React.MouseEvent, content: {
     indicatorName: string
     ruleDescription: string
@@ -37,12 +38,26 @@ export default function HeatmapSection({
   statusMap,
   selectedCell,
   onCellClick,
+  compact = false,
   onIndicatorMouseEnter,
   onIndicatorMouseLeave,
   onCellMouseEnter,
   onCellMouseLeave
 }: HeatmapSectionProps) {
   if (indicators.length === 0) return null
+
+  const tierOrder: Record<string, number> = {
+    Core: 0,
+    Watch: 1,
+    Confirm: 2
+  }
+
+  const sortedIndicators = [...indicators].sort((a, b) => {
+    const aRank = tierOrder[a.tier] ?? 99
+    const bRank = tierOrder[b.tier] ?? 99
+    if (aRank !== bRank) return aRank - bRank
+    return a.indicator_cn.localeCompare(b.indicator_cn)
+  })
 
   return (
     <div className="mb-8">
@@ -57,27 +72,27 @@ export default function HeatmapSection({
       </div>
 
       {/* 热力图表格 */}
-      <div className="overflow-x-auto bg-gray-800 rounded-lg p-4">
+      <div className={`overflow-x-auto bg-gray-800 rounded-lg ${compact ? 'p-2' : 'p-4'}`}>
         <table className="w-full">
           <thead>
             <tr>
-              <th className="text-left text-gray-400 text-xs font-medium py-2 pr-4 sticky left-0 bg-gray-800 z-10 min-w-[200px]">
+              <th className={`text-left text-gray-400 text-xs font-medium py-2 pr-4 sticky left-0 bg-gray-800 z-10 ${compact ? 'min-w-[140px]' : 'min-w-[200px]'}`}>
                 指标名称
               </th>
               {dates.map((date) => (
                 <th
                   key={date}
-                  className="text-gray-400 text-xs font-medium py-2 px-0.5"
+                  className={`text-gray-400 text-xs font-medium py-2 px-0.5 ${compact ? 'w-2' : ''}`}
                 >
-                  {formatDateShort(date)}
+                  {compact ? '' : formatDateShort(date)}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {indicators.map((indicator) => (
+            {sortedIndicators.map((indicator) => (
               <tr key={indicator.id} className="border-t border-gray-700">
-                <td className="text-white text-sm py-2 pr-4 sticky left-0 bg-gray-800 z-10">
+                <td className={`text-white ${compact ? 'text-xs py-1 pr-2' : 'text-sm py-2 pr-4'} sticky left-0 bg-gray-800 z-10`}>
                   {(() => {
                     const indicatorUrl = indicator.url || indicator.source_url || indicator.link
                     const investmentImplication = [
@@ -87,13 +102,14 @@ export default function HeatmapSection({
 
                     const content = {
                       indicatorName: indicator.indicator_cn,
+                      tier: indicator.tier,
                       ruleDescription: indicator.rule_description || '暂无',
                       investmentImplication: investmentImplication || '暂无'
                     }
 
                     return (
                       <div
-                        className="truncate max-w-[200px]"
+                        className={`truncate ${compact ? 'max-w-[140px]' : 'max-w-[200px]'}`}
                         title={indicator.indicator_cn}
                         onMouseEnter={(e) => onIndicatorMouseEnter(e, content)}
                         onMouseLeave={onIndicatorMouseLeave}
@@ -111,9 +127,11 @@ export default function HeatmapSection({
                       </div>
                     )
                   })()}
-                  <div className="text-gray-500 text-xs truncate max-w-[200px]">
-                    {indicator.indicator_en}
-                  </div>
+                  {!compact && (
+                    <div className="text-gray-500 text-xs truncate max-w-[200px]">
+                      {indicator.indicator_en}
+                    </div>
+                  )}
                 </td>
                 {dates.map((date) => (
                   <HeatmapCell
@@ -126,6 +144,7 @@ export default function HeatmapSection({
                       selectedCell?.indicatorId === indicator.id &&
                       selectedCell?.date === date
                     }
+                    compact={compact}
                     onClick={() => onCellClick(indicator.id, date)}
                     onMouseEnter={onCellMouseEnter}
                     onMouseLeave={onCellMouseLeave}

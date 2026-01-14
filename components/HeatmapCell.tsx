@@ -13,6 +13,7 @@ interface HeatmapCellProps {
   date: string
   cellData: HeatmapCellData | null
   isSelected: boolean
+  compact?: boolean
   onClick: () => void
   onMouseEnter: (e: React.MouseEvent, content: {
     indicatorName: string
@@ -30,6 +31,7 @@ export default function HeatmapCell({
   date,
   cellData,
   isSelected,
+  compact = false,
   onClick,
   onMouseEnter,
   onMouseLeave
@@ -50,10 +52,11 @@ export default function HeatmapCell({
   return (
     <td
       className={`
-        w-3 h-8 cursor-pointer transition-all
+        ${compact ? 'w-2 h-4' : 'w-3 h-8'}
+        cursor-pointer transition-all
         ${colorClass}
         ${isSelected ? 'ring-2 ring-blue-500' : ''}
-        hover:scale-110
+        ${compact ? '' : 'hover:scale-110'}
       `}
       onClick={onClick}
       onMouseEnter={handleMouseEnter}

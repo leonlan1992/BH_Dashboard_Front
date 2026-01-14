@@ -6,13 +6,23 @@
  */
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { generateDateRange } from '@/lib/utils'
+import { generateDateRangeFromEnd } from '@/lib/utils'
 import type { Indicator, IndicatorsByFactor, HeatmapData, HeatmapCellData } from '@/lib/types'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const endDateParam = searchParams.get('end_date')
+    const daysParam = searchParams.get('days')
+    const targetEndDate =
+      endDateParam && /^\d{4}-\d{2}-\d{2}$/.test(endDateParam)
+        ? endDateParam
+        : new Date().toISOString().split('T')[0]
+    const parsedDays = daysParam ? Number.parseInt(daysParam, 10) : 30
+    const days = Number.isFinite(parsedDays) && parsedDays > 0 ? parsedDays : 30
+
     // 1. 生成30天日期范围
-    const dates = generateDateRange(30)
+    const dates = generateDateRangeFromEnd(targetEndDate, days)
     const startDate = dates[0]
     const endDate = dates[dates.length - 1]
 

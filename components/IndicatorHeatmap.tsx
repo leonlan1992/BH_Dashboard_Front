@@ -14,11 +14,13 @@ import type { HeatmapData } from '@/lib/types'
 interface IndicatorHeatmapProps {
   data: HeatmapData
   onCellClick: (indicatorId: string) => void
+  compact?: boolean
 }
 
 export default function IndicatorHeatmap({
   data,
-  onCellClick
+  onCellClick,
+  compact = false
 }: IndicatorHeatmapProps) {
   const [selectedCell, setSelectedCell] = useState<{
     indicatorId: string
@@ -55,6 +57,7 @@ export default function IndicatorHeatmap({
     y: number
     content: {
       indicatorName: string
+      tier: string
       ruleDescription: string
       investmentImplication: string
     }
@@ -64,6 +67,7 @@ export default function IndicatorHeatmap({
     y: 0,
     content: {
       indicatorName: '',
+      tier: '',
       ruleDescription: '',
       investmentImplication: ''
     }
@@ -85,6 +89,7 @@ export default function IndicatorHeatmap({
     e: React.MouseEvent,
     content: {
       indicatorName: string
+      tier: string
       ruleDescription: string
       investmentImplication: string
     }
@@ -143,6 +148,7 @@ export default function IndicatorHeatmap({
           statusMap={data.statusMap}
           selectedCell={selectedCell}
           onCellClick={handleCellClick}
+          compact={compact}
           onIndicatorMouseEnter={handleIndicatorMouseEnter}
           onIndicatorMouseLeave={handleIndicatorMouseLeave}
           onCellMouseEnter={handleCellMouseEnter}

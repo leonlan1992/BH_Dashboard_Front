@@ -95,11 +95,21 @@ export function getStatusText(status: 'normal' | 'alert' | null): string {
  * @returns 日期字符串数组 ['YYYY-MM-DD', ...]
  */
 export function generateDateRange(days: number = 30): string[] {
+  return generateDateRangeFromEnd(new Date().toISOString().split('T')[0], days)
+}
+
+/**
+ * 根据结束日期生成日期范围数组（用于热力图）
+ * @param endDateStr 结束日期 'YYYY-MM-DD'
+ * @param days 天数（默认30天）
+ * @returns 日期字符串数组 ['YYYY-MM-DD', ...]
+ */
+export function generateDateRangeFromEnd(endDateStr: string, days: number = 30): string[] {
   const dates: string[] = []
-  const today = new Date()
+  const endDate = new Date(`${endDateStr}T00:00:00`)
 
   for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000)
+    const date = new Date(endDate.getTime() - i * 24 * 60 * 60 * 1000)
     dates.push(date.toISOString().split('T')[0])
   }
 
