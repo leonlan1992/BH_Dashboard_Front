@@ -111,7 +111,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-[1800px] mx-auto">
         {/* Header */}
         <div className="mb-8 flex flex-wrap justify-between items-center gap-4">
           <div>
