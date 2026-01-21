@@ -6,7 +6,6 @@
 
 import { useState, useEffect } from 'react'
 import { HeatmapData, IndicatorData, CombinedIndicatorData, VIX_COMBINED_CONFIG } from '@/lib/types'
-import { getDateRange } from '@/lib/utils'
 import IndicatorHeatmap from '@/components/IndicatorHeatmap'
 import TimeSeriesChart from '@/components/TimeSeriesChart'
 import ComparisonChart from '@/components/ComparisonChart'
@@ -57,6 +56,7 @@ export default function Home() {
   }
 
   // 获取指标详细时序数据（用于展开的图表）
+  // 使用热力图的截止日期作为结束日期，获取该日期前2年的数据
   const fetchIndicatorData = async (indicatorId: string) => {
     try {
       setIsLoadingChart(true)
@@ -64,7 +64,11 @@ export default function Home() {
       setIndicatorData(null)
       setCombinedData(null)
 
-      const { startDate, endDate } = getDateRange(730) // 获取2年数据
+      // 使用热力图截止日期作为结束日期，计算2年前的开始日期
+      const endDate = heatmapEndDate
+      const startDateObj = new Date(`${endDate}T00:00:00`)
+      startDateObj.setFullYear(startDateObj.getFullYear() - 2)
+      const startDate = startDateObj.toISOString().split('T')[0]
 
       // 检查是否为 VIX3M/VIX9D（需要显示双图表）
       if (VIX_COMBINED_CONFIG[indicatorId]) {
