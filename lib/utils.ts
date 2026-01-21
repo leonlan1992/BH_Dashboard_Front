@@ -129,3 +129,34 @@ export function getHeatmapCellColor(status: 'normal' | 'alert' | null): string {
       return 'bg-transparent border border-gray-700'
   }
 }
+
+/**
+ * 从日期数组中筛选出每月最后一天（用于总览模式X轴刻度）
+ * @param dates 日期字符串数组 ['YYYY-MM-DD', ...]
+ * @returns 每月月底日期数组
+ */
+export function getMonthEndDates(dates: string[]): string[] {
+  if (dates.length === 0) return []
+
+  const monthEndDates: string[] = []
+  let currentMonth: string | null = null
+
+  // 遍历日期，找到每个月的最后一天
+  for (let i = 0; i < dates.length; i++) {
+    const date = dates[i]
+    const month = date.substring(0, 7) // 'YYYY-MM'
+
+    // 如果是新的月份，记录上一个月的最后一天
+    if (currentMonth !== null && month !== currentMonth) {
+      monthEndDates.push(dates[i - 1])
+    }
+    currentMonth = month
+  }
+
+  // 添加最后一个月的最后一天
+  if (dates.length > 0) {
+    monthEndDates.push(dates[dates.length - 1])
+  }
+
+  return monthEndDates
+}

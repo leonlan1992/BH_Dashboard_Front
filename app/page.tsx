@@ -272,6 +272,7 @@ export default function Home() {
                         data={combinedData.comparisonData}
                         label1={combinedData.labels.line1}
                         label2={combinedData.labels.line2}
+                        isOverviewMode={isOverviewMode}
                       />
                     </div>
 
@@ -283,6 +284,7 @@ export default function Home() {
                       <SpreadChart
                         data={combinedData.spreadData}
                         label={combinedData.labels.spread}
+                        isOverviewMode={isOverviewMode}
                       />
                     </div>
                   </div>
@@ -348,7 +350,7 @@ export default function Home() {
                       <p className="text-gray-400 mt-2">加载数据中...</p>
                     </div>
                   ) : indicatorData ? (
-                    <TimeSeriesChart data={indicatorData.data} />
+                    <TimeSeriesChart data={indicatorData.data} isOverviewMode={isOverviewMode} />
                   ) : null}
                 </div>
               </>

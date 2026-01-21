@@ -16,15 +16,16 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { CombinedTimeSeriesPoint } from '@/lib/types'
-import { formatDateShort, formatValue } from '@/lib/utils'
+import { formatDateShort, formatValue, getMonthEndDates } from '@/lib/utils'
 
 interface ComparisonChartProps {
   data: CombinedTimeSeriesPoint[]
   label1: string  // 第一条线标签（如 "VIX"）
   label2: string  // 第二条线标签（如 "VIX3M"）
+  isOverviewMode?: boolean
 }
 
-export default function ComparisonChart({ data, label1, label2 }: ComparisonChartProps) {
+export default function ComparisonChart({ data, label1, label2, isOverviewMode = false }: ComparisonChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-gray-800 rounded-lg p-8 text-center">
@@ -83,6 +84,9 @@ export default function ComparisonChart({ data, label1, label2 }: ComparisonChar
   const dates = sortedData.map((point) => point.date)
   const dateIndex = new Map(dates.map((date, index) => [date, index]))
 
+  // 总览模式下，只显示每月月底日期作为刻度
+  const monthEndTicks = isOverviewMode ? getMonthEndDates(dates) : undefined
+
   // Y轴刻度格式化
   const formatYAxis = (value: number) => {
     if (Math.abs(value) >= 100) {
@@ -129,6 +133,7 @@ export default function ComparisonChart({ data, label1, label2 }: ComparisonChar
             stroke="#9CA3AF"
             tick={{ fill: '#9CA3AF', fontSize: 12 }}
             tickFormatter={(date) => formatDateShort(date)}
+            ticks={monthEndTicks}
           />
 
           <YAxis

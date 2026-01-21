@@ -16,13 +16,14 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { TimeSeriesPoint } from '@/lib/types'
-import { formatDateShort, formatValue } from '@/lib/utils'
+import { formatDateShort, formatValue, getMonthEndDates } from '@/lib/utils'
 
 interface TimeSeriesChartProps {
   data: TimeSeriesPoint[]
+  isOverviewMode?: boolean
 }
 
-export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
+export default function TimeSeriesChart({ data, isOverviewMode = false }: TimeSeriesChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-gray-800 rounded-lg p-8 text-center">
@@ -81,6 +82,9 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
   const dates = sortedData.map((point) => point.date)
   const dateIndex = new Map(dates.map((date, index) => [date, index]))
 
+  // 总览模式下，只显示每月月底日期作为刻度
+  const monthEndTicks = isOverviewMode ? getMonthEndDates(dates) : undefined
+
   // Y轴刻度格式化（避免过长小数）
   const formatYAxis = (value: number) => {
     if (Math.abs(value) >= 100) {
@@ -124,6 +128,7 @@ export default function TimeSeriesChart({ data }: TimeSeriesChartProps) {
             stroke="#9CA3AF"
             tick={{ fill: '#9CA3AF', fontSize: 12 }}
             tickFormatter={(date) => formatDateShort(date)}
+            ticks={monthEndTicks}
           />
 
           <YAxis

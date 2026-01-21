@@ -18,14 +18,15 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { SpreadTimeSeriesPoint } from '@/lib/types'
-import { formatDateShort, formatValue } from '@/lib/utils'
+import { formatDateShort, formatValue, getMonthEndDates } from '@/lib/utils'
 
 interface SpreadChartProps {
   data: SpreadTimeSeriesPoint[]
   label: string  // 差值标签（如 "VIX-VIX3M"）
+  isOverviewMode?: boolean
 }
 
-export default function SpreadChart({ data, label }: SpreadChartProps) {
+export default function SpreadChart({ data, label, isOverviewMode = false }: SpreadChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-gray-800 rounded-lg p-8 text-center">
@@ -91,6 +92,9 @@ export default function SpreadChart({ data, label }: SpreadChartProps) {
   const dates = sortedData.map((point) => point.date)
   const dateIndex = new Map(dates.map((date, index) => [date, index]))
 
+  // 总览模式下，只显示每月月底日期作为刻度
+  const monthEndTicks = isOverviewMode ? getMonthEndDates(dates) : undefined
+
   // Y轴刻度格式化
   const formatYAxis = (value: number) => {
     if (Math.abs(value) >= 100) {
@@ -135,6 +139,7 @@ export default function SpreadChart({ data, label }: SpreadChartProps) {
             stroke="#9CA3AF"
             tick={{ fill: '#9CA3AF', fontSize: 12 }}
             tickFormatter={(date) => formatDateShort(date)}
+            ticks={monthEndTicks}
           />
 
           <YAxis
