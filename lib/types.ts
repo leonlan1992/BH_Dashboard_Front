@@ -95,3 +95,57 @@ export interface HeatmapData {
   indicators: IndicatorsByFactor  // 按factor分组的指标
   statusMap: Record<string, Record<string, HeatmapCellData | null>>  // indicatorId -> date -> cellData
 }
+
+// 组合指标时序数据点（包含多个指标的值）
+export interface CombinedTimeSeriesPoint {
+  date: string
+  value1: number        // 第一个指标（VIX）
+  value2: number        // 第二个指标（VIX3M/VIX9D）
+  status: 'normal' | 'alert' | null
+  status_reason?: string | null
+}
+
+// 差值时序数据点
+export interface SpreadTimeSeriesPoint {
+  date: string
+  value: number         // 差值
+  status: 'normal' | 'alert' | null
+  status_reason?: string | null
+}
+
+// 组合指标数据（用于 VIX3M/VIX9D 的双图表展示）
+export interface CombinedIndicatorData {
+  mainIndicator: Indicator                    // 主指标元数据（VIX3M/VIX9D）
+  comparisonData: CombinedTimeSeriesPoint[]   // 对比图数据（VIX vs VIX3M/VIX9D）
+  spreadData: SpreadTimeSeriesPoint[]         // 差值图数据
+  labels: {
+    line1: string       // 第一条线标签（如 "VIX"）
+    line2: string       // 第二条线标签（如 "VIX3M"）
+    spread: string      // 差值标签（如 "VIX-VIX3M"）
+  }
+  stats: {
+    total_days: number
+    alert_days: number
+    alert_rate: number
+    latest_value: number
+    latest_status: 'normal' | 'alert' | null
+  }
+}
+
+// VIX 组合指标配置
+export const VIX_COMBINED_CONFIG: Record<string, {
+  vixIndicators: string[]      // VIX 数据源（按优先级）
+  spreadIndicator: string      // 差值指标 ID
+  labels: { line1: string; line2: string; spread: string }
+}> = {
+  'yhfinance_^VIX3M': {
+    vixIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
+    spreadIndicator: 'yhfinance_VIX-VIX3M',
+    labels: { line1: 'VIX', line2: 'VIX3M', spread: 'VIX-VIX3M' }
+  },
+  'yhfinance_^VIX9D': {
+    vixIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
+    spreadIndicator: 'yhfinance_VIX9D-VIX',
+    labels: { line1: 'VIX', line2: 'VIX9D', spread: 'VIX9D-VIX' }
+  }
+}

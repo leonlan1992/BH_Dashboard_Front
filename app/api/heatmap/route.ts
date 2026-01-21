@@ -27,19 +27,25 @@ export async function GET(request: Request) {
     const endDate = dates[dates.length - 1]
 
     // 2. 获取所有活跃指标
-    const { data: allIndicators, error: indicatorsError } = await supabase
+    const { data: rawIndicators, error: indicatorsError } = await supabase
       .from('bhdashboard_indicators')
       .select('*')
       .eq('is_active', true)
       .order('factor, tier')
 
-    if (indicatorsError || !allIndicators) {
+    if (indicatorsError || !rawIndicators) {
       console.error('Failed to fetch indicators:', indicatorsError)
       return NextResponse.json(
         { error: 'Failed to fetch indicators' },
         { status: 500 }
       )
     }
+
+    // 过滤掉 VIX-VIX3M 和 VIX9D-VIX 衍生指标（这些数据会在 VIX3M/VIX9D 图表中展示）
+    const HIDDEN_INDICATORS = ['yhfinance_VIX-VIX3M', 'yhfinance_VIX9D-VIX']
+    const allIndicators = rawIndicators.filter(
+      (ind: Indicator) => !HIDDEN_INDICATORS.includes(ind.id)
+    )
 
     // 3. 按factor分组
     const indicators: IndicatorsByFactor = {
