@@ -1,5 +1,5 @@
 /**
- * BH Dashboard 主页面 - 热力图版本
+ * BH Marco Risk Dashboard 主页面 - 热力图版本
  * GitHub风格的热力图展示，纵轴=指标，横轴=30天日期
  */
 'use client'
@@ -147,7 +147,7 @@ export default function Home() {
         {/* Header */}
         <div className="mb-8 flex flex-wrap justify-between items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">BH Dashboard</h1>
+            <h1 className="text-3xl font-bold">BH Marco Risk Dashboard</h1>
             <p className="text-gray-400 mt-1">风险监控仪表盘 - 热力图视图</p>
           </div>
 
@@ -364,7 +364,7 @@ export default function Home() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 text-sm">
-          <p>BH Dashboard © 2024 | 数据来源: Fred API</p>
+          <p>BH Marco Risk Dashboard © 2024 | 数据来源: Fred API</p>
         </div>
       </div>
     </main>
