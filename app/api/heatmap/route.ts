@@ -51,7 +51,8 @@ export async function GET(request: Request) {
     const indicators: IndicatorsByFactor = {
       D: allIndicators.filter((ind: Indicator) => ind.factor === 'D'),
       C: allIndicators.filter((ind: Indicator) => ind.factor === 'C'),
-      V: allIndicators.filter((ind: Indicator) => ind.factor === 'V')
+      V: allIndicators.filter((ind: Indicator) => ind.factor === 'V'),
+      A: allIndicators.filter((ind: Indicator) => ind.factor === 'A')
     }
 
     // 4. 批量获取所有指标的30天数据

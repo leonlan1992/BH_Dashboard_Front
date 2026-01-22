@@ -27,7 +27,8 @@ export async function GET() {
       return NextResponse.json({
         D: [],
         C: [],
-        V: []
+        V: [],
+        A: []
       })
     }
 
@@ -39,7 +40,7 @@ export async function GET() {
       }
       acc[factor].push(indicator)
       return acc
-    }, { D: [], C: [], V: [] } as IndicatorsByFactor)
+    }, { D: [], C: [], V: [], A: [] } as IndicatorsByFactor)
 
     return NextResponse.json(grouped)
   } catch (error) {

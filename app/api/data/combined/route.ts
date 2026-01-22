@@ -56,11 +56,12 @@ export async function GET(request: NextRequest) {
       .from('bhdashboard_indicators')
       .select('*')
       .eq('id', mainIndicatorId)
+      .eq('is_active', true)
       .single()
 
     if (indicatorError || !mainIndicator) {
       return NextResponse.json(
-        { error: 'Main indicator not found' },
+        { error: 'Main indicator not found or inactive' },
         { status: 404 }
       )
     }

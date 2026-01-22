@@ -80,14 +80,18 @@ export default function HeatmapSection({
               <th className={`text-left text-gray-400 text-xs font-medium py-2 pr-4 sticky left-0 bg-gray-800 z-10 ${compact ? 'min-w-[140px]' : 'min-w-[200px]'}`}>
                 指标名称
               </th>
-              {dates.map((date) => (
-                <th
-                  key={date}
-                  className={`text-gray-400 text-xs font-medium py-2 px-0.5 ${compact ? 'w-2' : ''}`}
-                >
-                  {compact ? '' : formatDateShort(date)}
-                </th>
-              ))}
+              {dates.map((date) => {
+                // 在 compact 模式下，不显示日期
+                const showDate = compact ? '' : formatDateShort(date)
+                return (
+                  <th
+                    key={date}
+                    className={`text-gray-400 text-xs font-medium py-2 px-0.5 ${compact ? 'w-2' : ''}`}
+                  >
+                    {showDate}
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>

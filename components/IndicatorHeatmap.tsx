@@ -138,12 +138,12 @@ export default function IndicatorHeatmap({
 
   return (
     <div className="relative">
-      {/* D、C、V三个factor组 */}
+      {/* D、C、V、A 四个factor组 */}
       {FACTORS.map((factor) => (
         <HeatmapSection
           key={factor.key}
           factor={factor}
-          indicators={data.indicators[factor.key as 'D' | 'C' | 'V']}
+          indicators={data.indicators[factor.key as 'D' | 'C' | 'V' | 'A']}
           dates={data.dates}
           statusMap={data.statusMap}
           selectedCell={selectedCell}

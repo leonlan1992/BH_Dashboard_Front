@@ -7,7 +7,7 @@
 export interface Indicator {
   id: string                    // 如 'FRED_DFII10'
   display_name: string          // 如 'Real rate'
-  factor: 'D' | 'C' | 'V'      // D=利率, C=信用, V=波动率
+  factor: 'D' | 'C' | 'V' | 'A'      // D=利率, C=信用, V=波动率, A=科技行业信用
   tier: 'Core' | 'Watch' | 'Confirm'
   indicator_cn: string          // 中文名称
   indicator_en: string          // 英文名称
@@ -51,11 +51,12 @@ export interface IndicatorsByFactor {
   D: Indicator[]   // 利率指标
   C: Indicator[]   // 信用指标
   V: Indicator[]   // 波动率指标
+  A: Indicator[]   // 科技行业信用指标
 }
 
 // Factor信息
 export interface FactorInfo {
-  key: 'D' | 'C' | 'V'
+  key: 'D' | 'C' | 'V' | 'A'
   name: string
   nameEn: string
   description: string
@@ -79,6 +80,12 @@ export const FACTORS: FactorInfo[] = [
     name: '波动率指标',
     nameEn: 'Volatility',
     description: '监控市场波动和风险情绪'
+  },
+  {
+    key: 'A',
+    name: '科技行业信用指标',
+    nameEn: 'Tech Credit',
+    description: '监控科技行业信用利差、CDS和违约风险'
   }
 ]
 
