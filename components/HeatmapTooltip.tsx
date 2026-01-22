@@ -29,13 +29,23 @@ export default function HeatmapTooltip({
 }: HeatmapTooltipProps) {
   if (!visible) return null
 
+  // 检测tooltip是否会超出右边界
+  // 假设tooltip最小宽度为300px
+  const minTooltipWidth = 300
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 0
+  const wouldOverflowRight = x + minTooltipWidth / 2 > viewportWidth - 20 // 20px padding
+
+  // 根据位置动态调整transform
+  const transformX = wouldOverflowRight ? '-100%' : '-50%'
+
   return (
     <div
       className="fixed z-50 bg-gray-900 border border-gray-700 rounded-lg p-3 shadow-xl pointer-events-none"
       style={{
         left: x,
         top: y,
-        transform: 'translate(-50%, -100%)'
+        transform: `translate(${transformX}, -100%)`,
+        minWidth: `${minTooltipWidth}px`
       }}
     >
       <p className="text-white font-medium text-sm">{content.indicatorName}</p>
