@@ -7,6 +7,7 @@
 import { formatDateShort } from '@/lib/utils'
 import HeatmapCell from './HeatmapCell'
 import type { Indicator, HeatmapCellData } from '@/lib/types'
+import { FACTOR_A_SORT_ORDER } from '@/lib/types'
 
 interface HeatmapSectionProps {
   factor: {
@@ -54,6 +55,23 @@ export default function HeatmapSection({
   }
 
   const sortedIndicators = [...indicators].sort((a, b) => {
+    // A因子使用自定义排序
+    if (factor.key === 'A') {
+      const aIndex = FACTOR_A_SORT_ORDER.indexOf(a.id)
+      const bIndex = FACTOR_A_SORT_ORDER.indexOf(b.id)
+
+      // 如果两个都在自定义排序列表中，按列表顺序排序
+      if (aIndex !== -1 && bIndex !== -1) {
+        return aIndex - bIndex
+      }
+      // 如果只有a在列表中，a排前面
+      if (aIndex !== -1) return -1
+      // 如果只有b在列表中，b排前面
+      if (bIndex !== -1) return 1
+      // 如果都不在列表中，按原来的tier+中文名排序
+    }
+
+    // 其他因子使用tier和中文名排序
     const aRank = tierOrder[a.tier] ?? 99
     const bRank = tierOrder[b.tier] ?? 99
     if (aRank !== bRank) return aRank - bRank

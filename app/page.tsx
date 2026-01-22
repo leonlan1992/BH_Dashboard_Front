@@ -5,7 +5,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { HeatmapData, IndicatorData, CombinedIndicatorData, VIX_COMBINED_CONFIG } from '@/lib/types'
+import { HeatmapData, IndicatorData, CombinedIndicatorData, COMBINED_INDICATOR_CONFIG } from '@/lib/types'
 import IndicatorHeatmap from '@/components/IndicatorHeatmap'
 import TimeSeriesChart from '@/components/TimeSeriesChart'
 import ComparisonChart from '@/components/ComparisonChart'
@@ -70,8 +70,8 @@ export default function Home() {
       startDateObj.setFullYear(startDateObj.getFullYear() - 2)
       const startDate = startDateObj.toISOString().split('T')[0]
 
-      // 检查是否为 VIX3M/VIX9D（需要显示双图表）
-      if (VIX_COMBINED_CONFIG[indicatorId]) {
+      // 检查是否为组合指标（需要显示双图表）
+      if (COMBINED_INDICATOR_CONFIG[indicatorId]) {
         const response = await fetch(
           `/api/data/combined?main_indicator=${encodeURIComponent(indicatorId)}&start_date=${startDate}&end_date=${endDate}`
         )
@@ -117,8 +117,8 @@ export default function Home() {
     }
   }
 
-  // 判断是否为组合指标模式（VIX3M/VIX9D）
-  const isCombinedMode = selectedIndicatorId && VIX_COMBINED_CONFIG[selectedIndicatorId]
+  // 判断是否为组合指标模式（VIX3M/VIX9D 或 Tech OAS）
+  const isCombinedMode = selectedIndicatorId && COMBINED_INDICATOR_CONFIG[selectedIndicatorId]
 
   // 刷新数据
   const handleRefresh = () => {
@@ -208,7 +208,7 @@ export default function Home() {
         {/* 展开的指标详情 */}
         {selectedIndicatorId && (
           <div className="mt-8 bg-gray-800 rounded-lg p-6">
-            {/* 组合指标模式（VIX3M/VIX9D）- 双图表 */}
+            {/* 组合指标模式（VIX3M/VIX9D 或 Tech OAS）- 双图表 */}
             {isCombinedMode ? (
               <>
                 <div className="mb-6">

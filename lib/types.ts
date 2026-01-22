@@ -76,16 +76,16 @@ export const FACTORS: FactorInfo[] = [
     description: '监控信用利差、违约风险和金融条件'
   },
   {
-    key: 'V',
-    name: '波动率指标',
-    nameEn: 'Volatility',
-    description: '监控市场波动和风险情绪'
-  },
-  {
     key: 'A',
     name: '科技行业信用指标',
     nameEn: 'Tech Credit',
     description: '监控科技行业信用利差、CDS和违约风险'
+  },
+  {
+    key: 'V',
+    name: '波动率指标',
+    nameEn: 'Volatility',
+    description: '监控市场波动和风险情绪'
   }
 ]
 
@@ -139,20 +139,56 @@ export interface CombinedIndicatorData {
   }
 }
 
-// VIX 组合指标配置
-export const VIX_COMBINED_CONFIG: Record<string, {
-  vixIndicators: string[]      // VIX 数据源（按优先级）
-  spreadIndicator: string      // 差值指标 ID
+// A因子指标自定义排序配置
+// 注意：请根据实际的indicator_id更新这些值
+export const FACTOR_A_SORT_ORDER: string[] = [
+  'bbg_orclcds',                               // Oracle 5Y CDS
+  'bbg_crwvcds',                               // Coreweave 5Y CDS
+  'bbg_USOAIGTO_Index',                        // USD IG OAS（广义）
+  'bbg_USOAIGTC_Index',                        // USD IG Technology OAS
+  'bbg_USOHHYTC_Index',                        // USD HY Technology OAS
+  'bbg_USOAIGTC_Index-bbg_USOAIGTO_Index',     // IG Tech OAS – Broad IG OAS
+  'bbg_USOHHYTC_Index-bbg_USOAIGTC_Index'      // Tech HY–IG OAS Gap
+]
+
+// 组合指标配置（VIX + Tech OAS）
+export const COMBINED_INDICATOR_CONFIG: Record<string, {
+  baseIndicators: string[]      // 基础指标数据源（按优先级）
+  spreadIndicator: string       // 差值指标 ID
   labels: { line1: string; line2: string; spread: string }
 }> = {
+  // VIX 组合指标
   'yhfinance_^VIX3M': {
-    vixIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
+    baseIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
     spreadIndicator: 'yhfinance_VIX-VIX3M',
     labels: { line1: 'VIX', line2: 'VIX3M', spread: 'VIX-VIX3M' }
   },
   'yhfinance_^VIX9D': {
-    vixIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
+    baseIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
     spreadIndicator: 'yhfinance_VIX9D-VIX',
     labels: { line1: 'VIX', line2: 'VIX9D', spread: 'VIX9D-VIX' }
+  },
+  // Tech OAS 组合指标
+  // 注意：请根据实际的indicator_id更新这些值
+  'PLACEHOLDER_IG_Tech_Broad_IG_OAS': {
+    baseIndicators: ['PLACEHOLDER_USD_IG_OAS'],  // USD IG OAS（广义）
+    spreadIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',  // 差值指标
+    labels: {
+      line1: 'USD IG OAS（广义）',
+      line2: 'USD IG Technology OAS',
+      spread: 'IG Tech OAS – Broad IG OAS'
+    }
+  },
+  'PLACEHOLDER_Tech_HY_IG_OAS_Gap': {
+    baseIndicators: ['PLACEHOLDER_USD_IG_Technology_OAS'],  // USD IG Technology OAS
+    spreadIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread',  // 差值指标
+    labels: {
+      line1: 'USD IG Technology OAS',
+      line2: 'USD HY Technology OAS',
+      spread: 'Tech HY–IG OAS Gap'
+    }
   }
 }
+
+// 保持向后兼容的VIX配置别名
+export const VIX_COMBINED_CONFIG = COMBINED_INDICATOR_CONFIG

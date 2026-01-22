@@ -1,22 +1,22 @@
 /**
  * GET /api/data/combined
- * 获取组合指标数据（用于 VIX3M/VIX9D 的双图表展示）
+ * 获取组合指标数据（用于 VIX3M/VIX9D 和 Tech OAS 的双图表展示）
  *
  * Query参数：
- * - main_indicator: 主指标ID（yhfinance_^VIX3M 或 yhfinance_^VIX9D）
- * - days: 获取最近N天数据（默认30）
+ * - main_indicator: 主指标ID（如 yhfinance_^VIX3M、yhfinance_^VIX9D、IG Tech OAS等）
+ * - days: 获取最近N天数据（默认730，即2年）
  * - start_date: 开始日期 YYYY-MM-DD（可选）
  * - end_date: 结束日期 YYYY-MM-DD（可选）
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import type { 
-  Indicator, 
-  CombinedIndicatorData, 
+import type {
+  Indicator,
+  CombinedIndicatorData,
   CombinedTimeSeriesPoint,
-  SpreadTimeSeriesPoint 
+  SpreadTimeSeriesPoint
 } from '@/lib/types'
-import { VIX_COMBINED_CONFIG } from '@/lib/types'
+import { COMBINED_INDICATOR_CONFIG } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 检查是否为支持的组合指标
-    const config = VIX_COMBINED_CONFIG[mainIndicatorId]
+    const config = COMBINED_INDICATOR_CONFIG[mainIndicatorId]
     if (!config) {
       return NextResponse.json(
         { error: `Indicator ${mainIndicatorId} does not support combined view` },
@@ -83,19 +83,19 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. 获取 VIX 数据（按优先级尝试多个数据源）
-    let vixData: any[] = []
-    for (const vixIndicator of config.vixIndicators) {
+    // 3. 获取基础指标数据（按优先级尝试多个数据源）
+    let baseData: any[] = []
+    for (const baseIndicator of config.baseIndicators) {
       const { data, error } = await supabase
         .from('bhdashboard_indicator_data')
         .select('date, value')
-        .eq('indicator_id', vixIndicator)
+        .eq('indicator_id', baseIndicator)
         .gte('date', startDate)
         .lte('date', endDate)
         .order('date', { ascending: true })
 
       if (!error && data && data.length > 0) {
-        vixData = data
+        baseData = data
         break
       }
     }
@@ -113,19 +113,19 @@ export async function GET(request: NextRequest) {
       console.error('Failed to fetch spread data:', spreadError)
     }
 
-    // 5. 构建 VIX 数据的日期映射
-    const vixMap = new Map<string, number>()
-    vixData.forEach((d: any) => {
-      vixMap.set(d.date, d.value)
+    // 5. 构建基础指标数据的日期映射
+    const baseMap = new Map<string, number>()
+    baseData.forEach((d: any) => {
+      baseMap.set(d.date, d.value)
     })
 
-    // 6. 构建对比图数据（只保留 VIX 和主指标都有数据的日期）
+    // 6. 构建对比图数据（只保留两个指标都有数据的日期）
     const comparisonData: CombinedTimeSeriesPoint[] = (mainData || [])
-      .filter((d: any) => vixMap.has(d.date))
+      .filter((d: any) => baseMap.has(d.date))
       .map((d: any) => ({
         date: d.date,
-        value1: vixMap.get(d.date)!,  // VIX
-        value2: d.value,               // VIX3M/VIX9D
+        value1: baseMap.get(d.date)!,  // 基础指标（如 VIX 或 USD IG OAS）
+        value2: d.value,                // 主指标（如 VIX3M、VIX9D、IG Tech OAS等）
         status: d.status,
         status_reason: d.status_reason
       }))

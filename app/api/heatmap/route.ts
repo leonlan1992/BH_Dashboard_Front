@@ -41,8 +41,13 @@ export async function GET(request: Request) {
       )
     }
 
-    // 过滤掉 VIX-VIX3M 和 VIX9D-VIX 衍生指标（这些数据会在 VIX3M/VIX9D 图表中展示）
-    const HIDDEN_INDICATORS = ['yhfinance_VIX-VIX3M', 'yhfinance_VIX9D-VIX']
+    // 过滤掉差值衍生指标（这些数据会在组合指标图表中展示）
+    const HIDDEN_INDICATORS = [
+      'yhfinance_VIX-VIX3M',
+      'yhfinance_VIX9D-VIX',
+      'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',  // IG Tech OAS – Broad IG OAS 差值
+      'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread'      // Tech HY–IG OAS Gap 差值
+    ]
     const allIndicators = rawIndicators.filter(
       (ind: Indicator) => !HIDDEN_INDICATORS.includes(ind.id)
     )
