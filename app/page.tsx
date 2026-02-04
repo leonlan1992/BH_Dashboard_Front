@@ -226,39 +226,6 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* 统计信息 */}
-                {combinedData && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">总天数</div>
-                      <div className="text-white text-2xl font-bold">
-                        {combinedData.stats.total_days}
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">预警天数</div>
-                      <div className="text-red-400 text-2xl font-bold">
-                        {combinedData.stats.alert_days}
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">预警率</div>
-                      <div className="text-yellow-400 text-2xl font-bold">
-                        {combinedData.stats.alert_rate}%
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">最新差值</div>
-                      <div className={`text-2xl font-bold ${combinedData.stats.latest_value > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {combinedData.stats.latest_value.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* 双图表展示 */}
                 {isLoadingChart ? (
                   <div className="bg-gray-800 rounded-lg p-8 text-center">
@@ -311,39 +278,6 @@ export default function Home() {
                     </p>
                   )}
                 </div>
-
-                {/* 统计信息 */}
-                {indicatorData && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">总天数</div>
-                      <div className="text-white text-2xl font-bold">
-                        {indicatorData.stats.total_days}
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">预警天数</div>
-                      <div className="text-red-400 text-2xl font-bold">
-                        {indicatorData.stats.alert_days}
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">预警率</div>
-                      <div className="text-yellow-400 text-2xl font-bold">
-                        {indicatorData.stats.alert_rate}%
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-700 rounded-lg p-4">
-                      <div className="text-gray-400 text-xs mb-1">最新数值</div>
-                      <div className="text-blue-400 text-2xl font-bold">
-                        {indicatorData.stats.latest_value.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* 时序图 */}
                 <div>

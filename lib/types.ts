@@ -187,41 +187,44 @@ export const COMBINED_INDICATOR_CONFIG: Record<string, {
     labels: { line1: 'VIX', line2: 'VIX9D', spread: 'VIX9D-VIX' }
   },
   // Tech OAS 组合指标
-  // 注意：请根据实际的indicator_id更新这些值
-  'PLACEHOLDER_IG_Tech_Broad_IG_OAS': {
-    baseIndicators: ['PLACEHOLDER_USD_IG_OAS'],
-    mainIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS',
-    spreadIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',
+  // IG Tech OAS – Broad IG OAS（通过主指标ID访问）
+  'bbg_USOAIGTC_Index': {
+    baseIndicators: ['bbg_USOAIGTO_Index'],
+    mainIndicator: 'bbg_USOAIGTC_Index',
+    spreadIndicator: 'bbg_USOAIGTC_Index-bbg_USOAIGTO_Index',
     labels: {
       line1: 'USD IG OAS（广义）',
       line2: 'USD IG Technology OAS',
       spread: 'IG Tech OAS – Broad IG OAS'
     }
   },
-  'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread': {
-    baseIndicators: ['PLACEHOLDER_USD_IG_OAS'],
-    mainIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS',
-    spreadIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',
+  // IG Tech OAS – Broad IG OAS（通过差值指标ID访问）
+  'bbg_USOAIGTC_Index-bbg_USOAIGTO_Index': {
+    baseIndicators: ['bbg_USOAIGTO_Index'],
+    mainIndicator: 'bbg_USOAIGTC_Index',
+    spreadIndicator: 'bbg_USOAIGTC_Index-bbg_USOAIGTO_Index',
     labels: {
       line1: 'USD IG OAS（广义）',
       line2: 'USD IG Technology OAS',
       spread: 'IG Tech OAS – Broad IG OAS'
     }
   },
-  'PLACEHOLDER_Tech_HY_IG_OAS_Gap': {
-    baseIndicators: ['PLACEHOLDER_USD_IG_Technology_OAS'],
-    mainIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap',
-    spreadIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread',
+  // Tech HY–IG OAS Gap（通过主指标ID访问）
+  'bbg_USOHHYTC_Index': {
+    baseIndicators: ['bbg_USOAIGTC_Index'],
+    mainIndicator: 'bbg_USOHHYTC_Index',
+    spreadIndicator: 'bbg_USOHHYTC_Index-bbg_USOAIGTC_Index',
     labels: {
       line1: 'USD IG Technology OAS',
       line2: 'USD HY Technology OAS',
       spread: 'Tech HY–IG OAS Gap'
     }
   },
-  'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread': {
-    baseIndicators: ['PLACEHOLDER_USD_IG_Technology_OAS'],
-    mainIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap',
-    spreadIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread',
+  // Tech HY–IG OAS Gap（通过差值指标ID访问）
+  'bbg_USOHHYTC_Index-bbg_USOAIGTC_Index': {
+    baseIndicators: ['bbg_USOAIGTC_Index'],
+    mainIndicator: 'bbg_USOHHYTC_Index',
+    spreadIndicator: 'bbg_USOHHYTC_Index-bbg_USOAIGTC_Index',
     labels: {
       line1: 'USD IG Technology OAS',
       line2: 'USD HY Technology OAS',
