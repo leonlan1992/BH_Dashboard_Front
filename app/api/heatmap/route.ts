@@ -41,12 +41,12 @@ export async function GET(request: Request) {
       )
     }
 
-    // 过滤掉差值衍生指标（这些数据会在组合指标图表中展示）
+    // 过滤掉主指标（用户只看差值指标，点击差值指标时会展示完整的组合图表）
     const HIDDEN_INDICATORS = [
-      'yhfinance_VIX-VIX3M',
-      'yhfinance_VIX9D-VIX',
-      'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',  // IG Tech OAS – Broad IG OAS 差值
-      'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread'      // Tech HY–IG OAS Gap 差值
+      'yhfinance_^VIX3M',   // 隐藏VIX3M主指标，只显示VIX-VIX3M差值
+      'yhfinance_^VIX9D',   // 隐藏VIX9D主指标，只显示VIX9D-VIX差值
+      'PLACEHOLDER_IG_Tech_Broad_IG_OAS',         // 隐藏主指标
+      'PLACEHOLDER_Tech_HY_IG_OAS_Gap'            // 隐藏主指标
     ]
     const allIndicators = rawIndicators.filter(
       (ind: Indicator) => !HIDDEN_INDICATORS.includes(ind.id)

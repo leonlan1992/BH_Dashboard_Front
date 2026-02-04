@@ -51,26 +51,45 @@ export async function GET(request: NextRequest) {
       endDate = end.toISOString().split('T')[0]
     }
 
-    // 1. 获取主指标元数据
-    const { data: mainIndicator, error: indicatorError } = await supabase
+    // 1. 获取显示用的指标元数据
+    // 如果用户点击的是差值指标，优先显示差值指标的元数据；否则显示主指标元数据
+    const actualMainIndicatorId = config.mainIndicator
+    let displayIndicator = null
+
+    // 尝试获取用户点击的指标元数据（可能是主指标或差值指标）
+    const { data: clickedIndicator, error: clickedError } = await supabase
       .from('bhdashboard_indicators')
       .select('*')
       .eq('id', mainIndicatorId)
       .eq('is_active', true)
       .single()
 
-    if (indicatorError || !mainIndicator) {
-      return NextResponse.json(
-        { error: 'Main indicator not found or inactive' },
-        { status: 404 }
-      )
+    if (clickedIndicator) {
+      // 用户点击的指标有元数据，使用它作为显示
+      displayIndicator = clickedIndicator
+    } else {
+      // 否则回退到主指标元数据
+      const { data: fallbackIndicator, error: fallbackError } = await supabase
+        .from('bhdashboard_indicators')
+        .select('*')
+        .eq('id', actualMainIndicatorId)
+        .eq('is_active', true)
+        .single()
+
+      if (fallbackError || !fallbackIndicator) {
+        return NextResponse.json(
+          { error: 'Indicator not found or inactive' },
+          { status: 404 }
+        )
+      }
+      displayIndicator = fallbackIndicator
     }
 
-    // 2. 获取主指标数据（VIX3M/VIX9D）
+    // 2. 获取主指标数据（VIX3M/VIX9D，使用actualMainIndicatorId）
     const { data: mainData, error: mainDataError } = await supabase
       .from('bhdashboard_indicator_data')
       .select('date, value, status, status_reason')
-      .eq('indicator_id', mainIndicatorId)
+      .eq('indicator_id', actualMainIndicatorId)
       .gte('date', startDate)
       .lte('date', endDate)
       .order('date', { ascending: true })
@@ -119,18 +138,31 @@ export async function GET(request: NextRequest) {
       baseMap.set(d.date, d.value)
     })
 
-    // 6. 构建对比图数据（只保留两个指标都有数据的日期）
-    const comparisonData: CombinedTimeSeriesPoint[] = (mainData || [])
-      .filter((d: any) => baseMap.has(d.date))
-      .map((d: any) => ({
-        date: d.date,
-        value1: baseMap.get(d.date)!,  // 基础指标（如 VIX 或 USD IG OAS）
-        value2: d.value,                // 主指标（如 VIX3M、VIX9D、IG Tech OAS等）
+    // 6. 构建差值数据的日期映射（用于对比图的status）
+    const spreadMap = new Map<string, { status: any; status_reason: any }>()
+    ;(spreadData || []).forEach((d: any) => {
+      spreadMap.set(d.date, {
         status: d.status,
         status_reason: d.status_reason
-      }))
+      })
+    })
 
-    // 7. 构建差值图数据
+    // 7. 构建对比图数据（只保留两个指标都有数据的日期）
+    // 注意：对比图的预警状态应该基于差值指标，而不是主指标
+    const comparisonData: CombinedTimeSeriesPoint[] = (mainData || [])
+      .filter((d: any) => baseMap.has(d.date))
+      .map((d: any) => {
+        const spreadInfo = spreadMap.get(d.date)
+        return {
+          date: d.date,
+          value1: baseMap.get(d.date)!,  // 基础指标（如 VIX 或 USD IG OAS）
+          value2: d.value,                // 主指标（如 VIX3M、VIX9D、IG Tech OAS等）
+          status: spreadInfo?.status || null,           // 使用差值指标的status
+          status_reason: spreadInfo?.status_reason || null  // 使用差值指标的status_reason
+        }
+      })
+
+    // 8. 构建差值图数据
     const spreadDataResult: SpreadTimeSeriesPoint[] = (spreadData || []).map((d: any) => ({
       date: d.date,
       value: d.value,
@@ -138,15 +170,15 @@ export async function GET(request: NextRequest) {
       status_reason: d.status_reason
     }))
 
-    // 8. 计算统计数据（基于差值数据）
+    // 9. 计算统计数据（基于差值数据）
     const totalDays = spreadDataResult.length
     const alertDays = spreadDataResult.filter(d => d.status === 'alert').length
     const alertRate = totalDays > 0 ? (alertDays / totalDays) * 100 : 0
     const latestSpread = spreadDataResult[spreadDataResult.length - 1]
 
-    // 9. 构建响应
+    // 10. 构建响应
     const response: CombinedIndicatorData = {
-      mainIndicator: mainIndicator as Indicator,
+      mainIndicator: displayIndicator as Indicator,
       comparisonData,
       spreadData: spreadDataResult,
       labels: config.labels,

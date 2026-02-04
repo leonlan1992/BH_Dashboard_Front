@@ -154,25 +154,54 @@ export const FACTOR_A_SORT_ORDER: string[] = [
 // 组合指标配置（VIX + Tech OAS）
 export const COMBINED_INDICATOR_CONFIG: Record<string, {
   baseIndicators: string[]      // 基础指标数据源（按优先级）
+  mainIndicator: string         // 主指标 ID（VIX3M/VIX9D等）
   spreadIndicator: string       // 差值指标 ID
   labels: { line1: string; line2: string; spread: string }
 }> = {
-  // VIX 组合指标
+  // VIX3M 组合指标（通过主指标ID访问）
   'yhfinance_^VIX3M': {
-    baseIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
+    baseIndicators: ['bbg_VIX_Index'],
+    mainIndicator: 'yhfinance_^VIX3M',
     spreadIndicator: 'yhfinance_VIX-VIX3M',
     labels: { line1: 'VIX', line2: 'VIX3M', spread: 'VIX-VIX3M' }
   },
+  // VIX3M 组合指标（通过差值指标ID访问 - 新增）
+  'yhfinance_VIX-VIX3M': {
+    baseIndicators: ['bbg_VIX_Index'],
+    mainIndicator: 'yhfinance_^VIX3M',
+    spreadIndicator: 'yhfinance_VIX-VIX3M',
+    labels: { line1: 'VIX', line2: 'VIX3M', spread: 'VIX-VIX3M' }
+  },
+  // VIX9D 组合指标（通过主指标ID访问）
   'yhfinance_^VIX9D': {
-    baseIndicators: ['Wind_G0003892', 'FRED_VIXCLS'],
+    baseIndicators: ['bbg_VIX_Index'],
+    mainIndicator: 'yhfinance_^VIX9D',
+    spreadIndicator: 'yhfinance_VIX9D-VIX',
+    labels: { line1: 'VIX', line2: 'VIX9D', spread: 'VIX9D-VIX' }
+  },
+  // VIX9D 组合指标（通过差值指标ID访问 - 新增）
+  'yhfinance_VIX9D-VIX': {
+    baseIndicators: ['bbg_VIX_Index'],
+    mainIndicator: 'yhfinance_^VIX9D',
     spreadIndicator: 'yhfinance_VIX9D-VIX',
     labels: { line1: 'VIX', line2: 'VIX9D', spread: 'VIX9D-VIX' }
   },
   // Tech OAS 组合指标
   // 注意：请根据实际的indicator_id更新这些值
   'PLACEHOLDER_IG_Tech_Broad_IG_OAS': {
-    baseIndicators: ['PLACEHOLDER_USD_IG_OAS'],  // USD IG OAS（广义）
-    spreadIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',  // 差值指标
+    baseIndicators: ['PLACEHOLDER_USD_IG_OAS'],
+    mainIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS',
+    spreadIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',
+    labels: {
+      line1: 'USD IG OAS（广义）',
+      line2: 'USD IG Technology OAS',
+      spread: 'IG Tech OAS – Broad IG OAS'
+    }
+  },
+  'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread': {
+    baseIndicators: ['PLACEHOLDER_USD_IG_OAS'],
+    mainIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS',
+    spreadIndicator: 'PLACEHOLDER_IG_Tech_Broad_IG_OAS_Spread',
     labels: {
       line1: 'USD IG OAS（广义）',
       line2: 'USD IG Technology OAS',
@@ -180,8 +209,19 @@ export const COMBINED_INDICATOR_CONFIG: Record<string, {
     }
   },
   'PLACEHOLDER_Tech_HY_IG_OAS_Gap': {
-    baseIndicators: ['PLACEHOLDER_USD_IG_Technology_OAS'],  // USD IG Technology OAS
-    spreadIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread',  // 差值指标
+    baseIndicators: ['PLACEHOLDER_USD_IG_Technology_OAS'],
+    mainIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap',
+    spreadIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread',
+    labels: {
+      line1: 'USD IG Technology OAS',
+      line2: 'USD HY Technology OAS',
+      spread: 'Tech HY–IG OAS Gap'
+    }
+  },
+  'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread': {
+    baseIndicators: ['PLACEHOLDER_USD_IG_Technology_OAS'],
+    mainIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap',
+    spreadIndicator: 'PLACEHOLDER_Tech_HY_IG_OAS_Gap_Spread',
     labels: {
       line1: 'USD IG Technology OAS',
       line2: 'USD HY Technology OAS',
